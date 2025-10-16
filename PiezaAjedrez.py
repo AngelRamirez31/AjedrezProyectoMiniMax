@@ -1,6 +1,9 @@
+<<<<<<< HEAD
+=======
 import operator
 from itertools import product
 
+>>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
 class PiezaAjedrez:
     def __init__(self, equipo, fila, columna, simbolo):
         self.se_ha_movido = False
@@ -9,7 +12,18 @@ class PiezaAjedrez:
         self.columna = columna
         self.tipo = self.__class__.__name__
         self.simbolo = simbolo
+<<<<<<< HEAD
+        self.valor = {
+            "Peon": 10,
+            "Caballo": 30,
+            "Alfil": 30,
+            "Torre": 50,
+            "Reina": 90,
+            "Rey": 900,
+        }.get(self.tipo, 0)
+=======
         self.valor = {'Peon': 10, 'Caballo': 30, 'Alfil': 30, 'Torre': 50, 'Reina': 90, 'Rey': 900}.get(self.tipo, 0)
+>>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
         self.historial_posicion = []
         self.historial_capturas = []
 
@@ -33,11 +47,56 @@ class PiezaAjedrez:
         self.se_ha_movido = True
 
     def __repr__(self):
+<<<<<<< HEAD
+        return f"{self.tipo}: {self.equipo}|({self.fila},{self.columna})"
+
+=======
         return f'{self.tipo}: {self.equipo}|({self.fila},{self.columna})'
+>>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
 
 class Peon(PiezaAjedrez):
     def obtener_movimientos(self, tablero):
         movimientos = []
+<<<<<<< HEAD
+        direccion = -1 if self.equipo == "blanco" else 1
+        nueva_fila = self.fila + direccion
+        if tablero.es_casilla_vacia(nueva_fila, self.columna):
+            movimientos.append((nueva_fila, self.columna))
+            if not self.se_ha_movido and tablero.es_casilla_vacia(
+                nueva_fila + direccion, self.columna
+            ):
+                movimientos.append((nueva_fila + direccion, self.columna))
+        for d_col in [-1, 1]:
+            if tablero.es_valido(
+                nueva_fila, self.columna + d_col
+            ) and tablero.hay_oponente(self, nueva_fila, self.columna + d_col):
+                movimientos.append((nueva_fila, self.columna + d_col))
+        return movimientos
+
+
+class Caballo(PiezaAjedrez):
+    def obtener_movimientos(self, tablero):
+        movimientos = []
+        saltos_posibles = [
+            (2, 1),
+            (2, -1),
+            (-2, 1),
+            (-2, -1),
+            (1, 2),
+            (1, -2),
+            (-1, 2),
+            (-1, -2),
+        ]
+        for salto in saltos_posibles:
+            nueva_fila, nueva_columna = self.fila + salto[0], self.columna + salto[1]
+            if tablero.es_valido(nueva_fila, nueva_columna) and not tablero.hay_aliado(
+                self, nueva_fila, nueva_columna
+            ):
+                movimientos.append((nueva_fila, nueva_columna))
+        return movimientos
+
+
+=======
         direccion = 1 if self.equipo == 'blanco' else -1
         nueva_fila = self.fila + direccion
         if tablero.es_casilla_vacia(nueva_fila, self.columna):
@@ -59,24 +118,74 @@ class Caballo(PiezaAjedrez):
                 movimientos.append((nueva_fila, nueva_columna))
         return movimientos
 
+>>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
 class Alfil(PiezaAjedrez):
     def obtener_movimientos(self, tablero):
         movimientos = []
         direcciones = [(1, 1), (1, -1), (-1, 1), (-1, -1)]
         for d in direcciones:
             for i in range(1, 8):
+<<<<<<< HEAD
+                nueva_fila, nueva_columna = (
+                    self.fila + d[0] * i,
+                    self.columna + d[1] * i,
+                )
+                if not tablero.es_valido(
+                    nueva_fila, nueva_columna
+                ) or tablero.hay_aliado(self, nueva_fila, nueva_columna):
+                    break
+                movimientos.append((nueva_fila, nueva_columna))
+                if tablero.hay_oponente(self, nueva_fila, nueva_columna):
+                    break
+        return movimientos
+
+
+=======
                 nueva_fila, nueva_columna = self.fila + d[0] * i, self.columna + d[1] * i
                 if not tablero.es_valido(nueva_fila, nueva_columna) or tablero.hay_aliado(self, nueva_fila, nueva_columna): break
                 movimientos.append((nueva_fila, nueva_columna))
                 if tablero.hay_oponente(self, nueva_fila, nueva_columna): break
         return movimientos
 
+>>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
 class Torre(PiezaAjedrez):
     def obtener_movimientos(self, tablero):
         movimientos = []
         direcciones = [(1, 0), (-1, 0), (0, 1), (0, -1)]
         for d in direcciones:
             for i in range(1, 8):
+<<<<<<< HEAD
+                nueva_fila, nueva_columna = (
+                    self.fila + d[0] * i,
+                    self.columna + d[1] * i,
+                )
+                if not tablero.es_valido(
+                    nueva_fila, nueva_columna
+                ) or tablero.hay_aliado(self, nueva_fila, nueva_columna):
+                    break
+                movimientos.append((nueva_fila, nueva_columna))
+                if tablero.hay_oponente(self, nueva_fila, nueva_columna):
+                    break
+        return movimientos
+
+
+class Reina(PiezaAjedrez):
+    def obtener_movimientos(self, tablero):
+        movimientos = []
+        movimientos.extend(
+            Torre(
+                self.equipo, self.fila, self.columna, self.simbolo
+            ).obtener_movimientos(tablero)
+        )
+        movimientos.extend(
+            Alfil(
+                self.equipo, self.fila, self.columna, self.simbolo
+            ).obtener_movimientos(tablero)
+        )
+        return movimientos
+
+
+=======
                 nueva_fila, nueva_columna = self.fila + d[0] * i, self.columna + d[1] * i
                 if not tablero.es_valido(nueva_fila, nueva_columna) or tablero.hay_aliado(self, nueva_fila, nueva_columna): break
                 movimientos.append((nueva_fila, nueva_columna))
@@ -90,13 +199,25 @@ class Reina(PiezaAjedrez):
         movimientos.extend(Alfil(self.equipo, self.fila, self.columna, self.simbolo).obtener_movimientos(tablero))
         return movimientos
 
+>>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
 class Rey(PiezaAjedrez):
     def obtener_movimientos(self, tablero):
         movimientos = []
         for i in range(-1, 2):
             for j in range(-1, 2):
+<<<<<<< HEAD
+                if i == 0 and j == 0:
+                    continue
+                nueva_fila, nueva_columna = self.fila + i, self.columna + j
+                if tablero.es_valido(
+                    nueva_fila, nueva_columna
+                ) and not tablero.hay_aliado(self, nueva_fila, nueva_columna):
+                    movimientos.append((nueva_fila, nueva_columna))
+        return movimientos
+=======
                 if i == 0 and j == 0: continue
                 nueva_fila, nueva_columna = self.fila + i, self.columna + j
                 if tablero.es_valido(nueva_fila, nueva_columna) and not tablero.hay_aliado(self, nueva_fila, nueva_columna):
                     movimientos.append((nueva_fila, nueva_columna))
         return movimientos
+>>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
