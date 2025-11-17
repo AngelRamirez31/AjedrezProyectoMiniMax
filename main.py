@@ -1,5 +1,4 @@
 from Tablero import Tablero
-<<<<<<< HEAD
 from PiezaAjedrez import PiezaAjedrez
 from InteligenciaArtificial import obtener_movimiento_ia
 
@@ -24,28 +23,6 @@ def iniciar_partida():
 
     equipo_humano = tablero.obtener_equipo_jugador()
     turno_actual = "blanco"
-=======
-from PiezaAjedrez import PiezaAjedrez 
-from InteligenciaArtificial import obtener_movimiento_ia
-
-def imprimir_tablero_consola(tablero):
-    print("\n   y: 0  1  2  3  4  5  6  7")
-    print("x: --------------------------")
-    representacion = tablero.obtener_representacion_unicode()
-    
-    # Imprime el tablero desde la fila 7 hasta la 0 para que las blancaSs queden abajo
-    for i in range(7, -1, -1):
-        fila_texto = ' '.join(representacion[i])
-        print(f"{i}|   {fila_texto}")
-
-def iniciar_partida():
-
-    # Si eliges 0 eres blancas, sino eres negras, profundidad.
-    tablero = Tablero(modo_juego=0, es_ia=True, profundidad_ia= 3)
-    
-    equipo_humano = tablero.obtener_equipo_jugador()
-    turno_actual = 'blanco'
->>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
 
     # Bucle principal del juego
     while True:
@@ -53,11 +30,7 @@ def iniciar_partida():
 
         # Se revisa si el juego ha terminado
         if tablero.es_jaque_mate(turno_actual):
-<<<<<<< HEAD
             ganador = "Negras" if turno_actual == "blanco" else "Blancas"
-=======
-            ganador = 'Negras' if turno_actual == 'blanco' else 'Blancas'
->>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
             print(f"\n¡¡JAQUE MATE!! Ganan las {ganador}")
             break
         if tablero.es_ahogado(turno_actual):
@@ -67,7 +40,6 @@ def iniciar_partida():
         # Determina si es turno del jugador o de la IA
         if turno_actual == equipo_humano:
             print(f"\n- Tu turno ({equipo_humano}) -")
-<<<<<<< HEAD
 
             jugada_valida = False
             while not jugada_valida:
@@ -92,25 +64,6 @@ def iniciar_partida():
                         and 0 <= fila_f <= 7
                         and 0 <= col_f <= 7
                     ):
-=======
-            
-            jugada_valida = False
-            while not jugada_valida:
-                try:
-                    entrada = input("Ingresa tu jugada (fila_inicial col_inicial fila_final col_final): ")
-                    
-                    # Procesa y valida la entrada 
-                    partes = entrada.split()
-                    if len(partes) != 4:
-                        print(" ERROR: Debes introducir exactamente 4 números. ")
-                        continue # Vuelve a pedir la jugada
-                    
-                    coords = list(map(int, partes))
-                    fila_i, col_i, fila_f, col_f = coords
-
-                    # Valida la logica del movimiento 
-                    if not (0 <= fila_i <= 7 and 0 <= col_i <= 7 and 0 <= fila_f <= 7 and 0 <= col_f <= 7):
->>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
                         print(" ERROR: Las coordenadas deben estar entre 0 y 7. ")
                         continue
 
@@ -119,7 +72,6 @@ def iniciar_partida():
                         print(" ERROR: No hay ninguna pieza en la casilla de inicio. ")
                         continue
                     if pieza.equipo != equipo_humano:
-<<<<<<< HEAD
                         print(
                             f"ERROR: La pieza en ({fila_i},{col_i}) es del equipo contrario."
                         )
@@ -129,19 +81,11 @@ def iniciar_partida():
                         pieza.obtener_movimientos(tablero), tablero
                     )
 
-=======
-                        print(f"ERROR: La pieza en ({fila_i},{col_i}) es del equipo contrario.")
-                        continue
-
-                    movimientos_legales = pieza.filtrar_movimientos_legales(pieza.obtener_movimientos(tablero), tablero)
-                    
->>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
                     if (fila_f, col_f) in movimientos_legales:
                         tablero.realizar_movimiento(pieza, fila_f, col_f)
                         jugada_valida = True
                         print("Movimiento realizado con exito!!")
                     else:
-<<<<<<< HEAD
                         print(
                             "ERROR: Movimiento no permitido para esa pieza o te deja en jaque."
                         )
@@ -149,11 +93,6 @@ def iniciar_partida():
                         print(
                             f"Movimientos válidos para el {pieza.tipo} en ({fila_i},{col_i}): {movimientos_legales}"
                         )
-=======
-                        print("ERROR: Movimiento no permitido para esa pieza o te deja en jaque.")
-                        # Ayuda para el jugador: muestra los movimientos validos para la pieza elegida
-                        print(f"Movimientos válidos para el {pieza.tipo} en ({fila_i},{col_i}): {movimientos_legales}")
->>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
 
                 except ValueError:
                     # Este error solo ocurre si la entrada no son numeros (ej: "1 a 3 4")
@@ -162,18 +101,12 @@ def iniciar_partida():
                 except Exception as e:
                     # Este error atrapa cualquier otro problema inesperado y nos dice que es
                     print(f" ¡ERROR INESPERADO! Ha ocurrido un problema: {e} ")
-<<<<<<< HEAD
 
         else:  # Turno de la IA
-=======
-            
-        else: # Turno de la IA
->>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
             print("\nTurno de la IA, calculando jugada...")
             obtener_movimiento_ia(tablero)
 
         # Cambia de turno para la siguiente iteración
-<<<<<<< HEAD
         turno_actual = "negro" if turno_actual == "blanco" else "blanco"
 
     print("\n- Fin de la partida -")
@@ -181,11 +114,3 @@ def iniciar_partida():
 
 if __name__ == "__main__":
     iniciar_partida()
-=======
-        turno_actual = 'negro' if turno_actual == 'blanco' else 'blanco'
-
-    print("\n- Fin de la partida -")
-
-if __name__ == '__main__':
-    iniciar_partida()
->>>>>>> 7f3292b4b672311f6396c2145ba8e647fc8d90c4
