@@ -6,8 +6,8 @@ from Tablero import Tablero
 
 # Assets
 try:
-    dark_block = pygame.image.load('assets/square brown dark.png')
-    light_block = pygame.image.load('assets/square brown light.png')
+    dark_block = pygame.image.load('assets/black square.png')
+    light_block = pygame.image.load('assets/white square.png')
     dark_block = pygame.transform.scale(dark_block, (75, 75))
     light_block = pygame.transform.scale(light_block, (75, 75))
 
@@ -37,7 +37,7 @@ try:
     blackQueen = pygame.image.load('assets/B_Queen.png')
     blackQueen = pygame.transform.scale(blackQueen, (75, 75))
 
-    highlight_block = pygame.image.load('assets/highlight_128px.png')
+    highlight_block = pygame.image.load('assets/highlight.png')
     highlight_block = pygame.transform.scale(highlight_block, (75, 75))
     
     try:
