@@ -1,7 +1,7 @@
 import math
 import random
-import pygame  # <--- AÑADIDO 1: Importamos Pygame
-import sys     # <--- AÑADIDO 2: Importamos Sys (para salir)
+import pygame 
+import sys     
 from Tablero import Tablero 
 from PiezaAjedrez import PiezaAjedrez
 
@@ -82,18 +82,13 @@ def obtener_movimiento_ia(tablero):
     
     random.shuffle(movimientos_posibles) 
 
-    # --- BUCLE DE PENSAMIENTO DE LA IA ---
     for pieza, movimiento in movimientos_posibles:
-        
-        # --- ¡CORRECCIÓN DE "NO RESPONDE"! ---
-        # AÑADIDO 3: Le damos un "respiro" a Pygame en cada iteración
-        # para que procese eventos y la ventana no se congele.
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 print("Juego cerrado durante el pensamiento de la IA.")
                 pygame.quit()
                 sys.exit()
-        # --- FIN DE LA CORRECCIÓN ---
 
         tablero.realizar_movimiento(
             pieza, movimiento[0], movimiento[1], registrar_historial=True

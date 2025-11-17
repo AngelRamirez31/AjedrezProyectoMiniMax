@@ -4,8 +4,7 @@ from PiezaAjedrez import *
 from InteligenciaArtificial import obtener_movimiento_ia
 from Tablero import Tablero
 
-# --- 1. Carga de Assets (Rutas Corregidas) ---
-# Se usan los nuevos nombres de archivo (ej: W_Pawn.png)
+# Carga de Assets
 try:
     dark_block = pygame.image.load('assets/square brown dark.png')
     light_block = pygame.image.load('assets/square brown light.png')
@@ -25,7 +24,6 @@ try:
     whiteQueen = pygame.image.load('assets/W_Queen.png')
     whiteQueen = pygame.transform.scale(whiteQueen, (75, 75))
 
-    # --- ENLACES DE PIEZAS NEGRAS ACTUALIZADOS ---
     blackPawn = pygame.image.load('assets/B_Pawn.png')
     blackPawn = pygame.transform.scale(blackPawn, (75, 75))
     blackRook = pygame.image.load('assets/B_Rook.png')
@@ -47,7 +45,7 @@ except pygame.error as e:
     print(e)
     sys.exit()
 
-# --- 2. Variables Globales de Pygame ---
+# Variables Globales de Pygame 
 screen = None
 pygame.font.init()
 font = pygame.font.SysFont('Comic Sans MS', 24)
@@ -64,10 +62,9 @@ MAPEO_PIEZAS = {
 }
 
 
-# --- 3. Funciones de Dibujo ---
+# Funciones de Dibujo 
 
 def initialize():
-    """Inicializa la ventana de Pygame."""
     global screen
     pygame.init()
     pygame.display.set_caption('Ajedrez con IA')
@@ -81,8 +78,6 @@ def initialize():
     screen.fill((0, 0, 0))
 
 def draw_background(board):
-    """Dibuja el tablero y las piezas."""
-    
     block_x = 0
     for i in range(4):
         block_y = 0
@@ -108,7 +103,6 @@ def draw_background(board):
     pygame.display.update()
 
 def draw_text(text):
-    """Dibuja el texto de fin de partida."""
     s = pygame.Surface((600, 50))
     s.fill((0, 0, 0))
     screen.blit(s, (0, 600))
@@ -124,10 +118,9 @@ def draw_text(text):
     pygame.display.update()
 
 
-# --- 4. Bucle Principal del Juego ---
+# Bucle Principal del Juego 
 
 def start_game_loop(board):
-    """Maneja el bucle de eventos del juego."""
     global screen
     possible_piece_moves = []
     running = True
@@ -141,7 +134,7 @@ def start_game_loop(board):
     if equipo_humano == 'negro' and board.es_ia:
         pygame.display.set_caption("IA está pensando...")
         obtener_movimiento_ia(board)
-        pygame.display.set_caption("Ajedrez con IA")
+        pygame.display.set_caption("Ajedrez")
         draw_background(board)
         turno_actual = 'negro'
 
@@ -233,10 +226,9 @@ def start_game_loop(board):
 
     return False 
 
-# --- 5. Punto de Entrada Principal ---
+# Main
 
 def main():
-    """Función principal que controla el reinicio del juego."""
     keep_playing = True
     while keep_playing:
         initialize()

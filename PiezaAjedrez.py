@@ -20,16 +20,14 @@ class PiezaAjedrez:
         }.get(self.tipo, 0)
         self.historial_posicion = []
         self.historial_capturas = []
-        self.historial_movimiento = [] # <-- CORRECCIÓN BUG PEÓN
+        self.historial_movimiento = [] 
 
     def filtrar_movimientos_legales(self, posibles_movimientos, tablero):
         movimientos_finales = []
         for mov in posibles_movimientos:
             tablero_simulado = tablero.clonar()
             pieza_a_mover = tablero_simulado.matriz[self.fila][self.columna]
-            
-            # --- CORRECCIÓN BUG "ALFIL COME REY" ---
-            # No se puede mover a una casilla ocupada por un Rey
+
             pieza_en_destino = tablero_simulado.matriz[mov[0]][mov[1]]
             if isinstance(pieza_en_destino, Rey):
                 continue
@@ -55,15 +53,11 @@ class PiezaAjedrez:
 class Peon(PiezaAjedrez):
     def obtener_movimientos(self, tablero):
         movimientos = []
-        
-        # --- LÓGICA DE PEÓN CORREGIDA ---
-        # Blancas: Fila 6 -> 5, 4 (dirección -1)
-        # Negras: Fila 1 -> 2, 3 (dirección +1)
+
         direccion = -1 if self.equipo == "blanco" else 1
         
         nueva_fila = self.fila + direccion
-        
-        # Comprobar si la nueva fila es válida (evita error al coronar)
+
         if not tablero.es_valido(nueva_fila, self.columna):
             return movimientos
         
@@ -156,7 +150,6 @@ class Reina(PiezaAjedrez):
         )
         return movimientos
 
-# --- CLASE REY CORREGIDA (PARA BUG DE RECURSIÓN) ---
 class Rey(PiezaAjedrez):
     def obtener_movimientos_basicos(self, tablero):
         """Obtiene solo los 8 movimientos de 1 casilla."""
@@ -179,7 +172,7 @@ class Rey(PiezaAjedrez):
         if self.se_ha_movido or tablero.rey_en_jaque(self.equipo):
             return movimientos_enroque
 
-        # Enroque Corto (Kingside) - Fila 0 para negras, Fila 7 para blancas
+        # Enroque Corto 
         torre_corta = tablero[self.fila][7]
         if (
             isinstance(torre_corta, Torre)
@@ -189,9 +182,9 @@ class Rey(PiezaAjedrez):
             and not tablero.es_casilla_atacada(self.fila, 5, self.equipo)
             and not tablero.es_casilla_atacada(self.fila, 6, self.equipo)
         ):
-            movimientos_enroque.append((self.fila, 6)) # Movimiento del Rey
+            movimientos_enroque.append((self.fila, 6)) 
 
-        # Enroque Largo (Queenside)
+        # Enroque Largo
         torre_larga = tablero[self.fila][0]
         if (
             isinstance(torre_larga, Torre)
@@ -202,7 +195,7 @@ class Rey(PiezaAjedrez):
             and not tablero.es_casilla_atacada(self.fila, 2, self.equipo)
             and not tablero.es_casilla_atacada(self.fila, 3, self.equipo)
         ):
-            movimientos_enroque.append((self.fila, 2)) # Movimiento del Rey
+            movimientos_enroque.append((self.fila, 2)) 
             
         return movimientos_enroque
 
