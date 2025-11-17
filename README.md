@@ -2,7 +2,7 @@
 
 This project is a complete implementation of a Chess Engine with Artificial Intelligence, capable of playing against a human opponent through a graphical interface.
 
-The core of the agent is based on the **Minimax** algorithm with **Alpha-Beta pruning** optimizations. Unlike basic engines, this agent utilizes **positional evaluation** (Piece-Square Tables), allowing it to understand strategies—such as controlling the center or developing pieces—beyond simple material value.
+The core of the agent is based on the **Minimax** algorithm with **Alpha-Beta pruning** optimizations. Unlike basic engines, this agent utilizes **positional evaluation** (Piece-Square Tables), allowing it to understand strategies such as controlling the center or developing pieces beyond simple material value.
 
 
 
@@ -10,7 +10,7 @@ The core of the agent is based on the **Minimax** algorithm with **Alpha-Beta pr
 
 # Key Features
 
-* **Graphical User Interface (GUI):** Built with `Pygame`, offering a visual and interactive experience with event handling (clicks, window management) without freezing during AI calculation.
+* **Graphical User Interface (GUI):** Built with `Pygame`, offering a visual and interactive experience with event handling (clicks, window management).
 * **Strategic AI:**
     * **Minimax Algorithm:** Adjustable depth to balance difficulty and calculation time.
     * **Alpha-Beta Pruning:** Massive optimization that discards irrelevant game trees, allowing for deeper search.
