@@ -4,7 +4,7 @@ from PiezaAjedrez import *
 from InteligenciaArtificial import obtener_movimiento_ia
 from Tablero import Tablero
 
-# Carga de Assets
+# Assets
 try:
     dark_block = pygame.image.load('assets/square brown dark.png')
     light_block = pygame.image.load('assets/square brown light.png')
@@ -39,45 +39,35 @@ try:
 
     highlight_block = pygame.image.load('assets/highlight_128px.png')
     highlight_block = pygame.transform.scale(highlight_block, (75, 75))
+    
+    try:
+        icon = pygame.image.load('assets/icon.png')
+        pygame.display.set_icon(icon)
+    except:
+        pass
 
 except pygame.error as e:
-    print(f"Error al cargar las imágenes. Asegúrate de que la carpeta 'assets' exista y contenga todas las imágenes.")
-    print(e)
+    print(f"Error cargando imagenes: {e}")
     sys.exit()
 
-# Variables Globales de Pygame 
 screen = None
 pygame.font.init()
 font = pygame.font.SysFont('Comic Sans MS', 24)
 
 MAPEO_PIEZAS = {
-    'blanco': {
-        'Peon': whitePawn, 'Torre': whiteRook, 'Caballo': whiteKnight,
-        'Alfil': whiteBishop, 'Reina': whiteQueen, 'Rey': whiteKing
-    },
-    'negro': {
-        'Peon': blackPawn, 'Torre': blackRook, 'Caballo': blackKnight,
-        'Alfil': blackBishop, 'Reina': blackQueen, 'Rey': blackKing
-    }
+    'blanco': {'Peon': whitePawn, 'Torre': whiteRook, 'Caballo': whiteKnight, 'Alfil': whiteBishop, 'Reina': whiteQueen, 'Rey': whiteKing},
+    'negro': {'Peon': blackPawn, 'Torre': blackRook, 'Caballo': blackKnight, 'Alfil': blackBishop, 'Reina': blackQueen, 'Rey': blackKing}
 }
-
-
-# Funciones de Dibujo 
 
 def initialize():
     global screen
     pygame.init()
     pygame.display.set_caption('Ajedrez con IA')
-    try:
-        icon = pygame.image.load('assets/icon.png') 
-        pygame.display.set_icon(icon)
-    except:
-        print("Icono 'icon.png' no encontrado en 'assets', continuando sin icono.")
-        
-    screen = pygame.display.set_mode((600, 650))
+    screen = pygame.display.set_mode((600, 600))
     screen.fill((0, 0, 0))
 
-def draw_background(board):
+def draw_background(board, equipo_jugador):
+
     block_x = 0
     for i in range(4):
         block_y = 0
@@ -88,37 +78,66 @@ def draw_background(board):
             screen.blit(dark_block, (block_x, block_y + 75))
             block_y += 150
         block_x += 150
-    
-    step_x = 0
-    for i in range(7, -1, -1):
+
+    soy_blanco = (equipo_jugador == 'blanco')
+
+    for i in range(8):
         for j in range(8):
-            if isinstance(board[i][j], PiezaAjedrez):
-                pieza = board[i][j]
+            pieza = board[i][j]
+            if isinstance(pieza, PiezaAjedrez):
                 obj = MAPEO_PIEZAS[pieza.equipo][pieza.tipo]
-                screen_y = (7 - i) * 75 
-                screen.blit(obj, (step_x, screen_y))
-            step_x += 75
-        step_x = 0
-    
+
+                if soy_blanco:
+
+                    screen_y = i * 75
+                    screen_x = j * 75
+                else:
+
+                    screen_y = (7 - i) * 75
+                    screen_x = (7 - j) * 75
+                
+                screen.blit(obj, (screen_x, screen_y))
     pygame.display.update()
 
-def draw_text(text):
-    s = pygame.Surface((600, 50))
-    s.fill((0, 0, 0))
-    screen.blit(s, (0, 600))
-    
-    text_surface = font.render(text, False, (237, 237, 237))
-    text_rect = text_surface.get_rect(center=(300, 615)) 
-    
-    text_surface_restart = font.render('Presiona ESPACIO para reiniciar', False, (237, 237, 237))
-    text_restart_rect = text_surface_restart.get_rect(center=(300, 635))
+def seleccionar_promocion(equipo):
+    seleccionando = True
+    opciones = ['Reina', 'Torre', 'Alfil', 'Caballo']
+    imagenes = [
+        MAPEO_PIEZAS[equipo]['Reina'],
+        MAPEO_PIEZAS[equipo]['Torre'],
+        MAPEO_PIEZAS[equipo]['Alfil'],
+        MAPEO_PIEZAS[equipo]['Caballo']
+    ]
 
-    screen.blit(text_surface, text_rect)
-    screen.blit(text_surface_restart, text_restart_rect)
+    s = pygame.Surface((600, 600))
+    s.set_alpha(150)
+    s.fill((0,0,0))
+    screen.blit(s, (0,0))
+    
+    base_x = 140
+    base_y = 250
+
+    pygame.draw.rect(screen, (220, 220, 220), (120, 200, 360, 150))
+    
+    texto = font.render("Selecciona Pieza:", True, (0, 0, 0))
+    screen.blit(texto, (200, 210))
+    
+    for idx, img in enumerate(imagenes):
+        screen.blit(img, (base_x + idx * 85, base_y))
+    
     pygame.display.update()
+    
+    while seleccionando:
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos_x, pos_y = pygame.mouse.get_pos()
+                if 250 <= pos_y <= 325:
+                    for idx in range(4):
+                        x_min = base_x + idx * 85
+                        if x_min <= pos_x <= x_min + 75:
+                            return opciones[idx]
+    return 'Reina'
 
-
-# Bucle Principal del Juego 
 
 def start_game_loop(board):
     global screen
@@ -129,19 +148,17 @@ def start_game_loop(board):
     pieza_seleccionada = None
     
     equipo_humano = board.obtener_equipo_jugador()
+    soy_blanco = (equipo_humano == 'blanco')
     turno_actual = 'blanco'
-    
+
     if equipo_humano == 'negro' and board.es_ia:
         pygame.display.set_caption("IA está pensando...")
         obtener_movimiento_ia(board)
         pygame.display.set_caption("Ajedrez")
-        draw_background(board)
-        turno_actual = 'negro'
+        draw_background(board, equipo_humano)
+        turno_actual = 'negro' 
 
     while running:
-        if game_over:
-            draw_text(game_over_txt)
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -152,90 +169,109 @@ def start_game_loop(board):
                     return True 
 
             if event.type == pygame.MOUSEBUTTONDOWN and not game_over and turno_actual == equipo_humano:
-                pos_y, pos_x = pygame.mouse.get_pos()
+                pos_x_pixel, pos_y_pixel = pygame.mouse.get_pos()
                 
-                fila_clic = 7 - (pos_x // 75) 
-                col_clic = pos_y // 75
                 
-                if not (0 <= fila_clic <= 7 and 0 <= col_clic <= 7):
+                col_click = pos_x_pixel // 75
+                fila_click = pos_y_pixel // 75
+                
+                if soy_blanco:
+                    fila_logica = fila_click
+                    col_logica = col_click
+                else:
+                    fila_logica = 7 - fila_click
+                    col_logica = 7 - col_click
+                
+                if not (0 <= fila_logica <= 7 and 0 <= col_logica <= 7):
                     continue
 
-                if (fila_clic, col_clic) in possible_piece_moves:
-                    board.realizar_movimiento(pieza_seleccionada, fila_clic, col_clic)
+                if (fila_logica, col_logica) in possible_piece_moves:
+
+                    board.realizar_movimiento(pieza_seleccionada, fila_logica, col_logica)
+
+                    pieza_movida = board[fila_logica][col_logica]
+                    if isinstance(pieza_movida, Peon):
+
+                        if pieza_movida.equipo == 'blanco' and fila_logica == 0:
+                            eleccion = seleccionar_promocion('blanco')
+                            board.promocionar_peon(fila_logica, col_logica, eleccion)
+                        elif pieza_movida.equipo == 'negro' and fila_logica == 7:
+                            eleccion = seleccionar_promocion('negro')
+                            board.promocionar_peon(fila_logica, col_logica, eleccion)
+
                     possible_piece_moves.clear()
                     visible_moves = False
-                    draw_background(board)
+                    draw_background(board, equipo_humano)
                     turno_actual = 'negro' if equipo_humano == 'blanco' else 'blanco'
                     
-                    if board.es_jaque_mate('negro'):
+                    # Checa estado
+                    if board.es_jaque_mate('negro') or board.es_jaque_mate('blanco') or board.es_ahogado('blanco') or board.es_ahogado('negro'):
                         game_over = True
-                        game_over_txt = '¡GANAN LAS BLANCAS!'
-                    elif board.es_jaque_mate('blanco'):
-                        game_over = True
-                        game_over_txt = '¡GANAN LAS NEGRAS!'
-                    elif board.es_ahogado('blanco') or board.es_ahogado('negro'):
-                        game_over = True
-                        game_over_txt = '¡EMPATE POR AHOGADO!'
                 
                 else:
-                    pieza = board[fila_clic][col_clic]
+                    # SELECCIONA PIEZA 
+                    pieza = board[fila_logica][col_logica]
                     if isinstance(pieza, PiezaAjedrez) and (equipo_humano == pieza.equipo):
                         pieza_seleccionada = pieza
                         moves = pieza.filtrar_movimientos_legales(pieza.obtener_movimientos(board), board)
                         
                         if visible_moves:
-                            draw_background(board)
+                            draw_background(board, equipo_humano)
                             visible_moves = False
                         
                         possible_piece_moves = moves
-                        
+
                         for move in possible_piece_moves:
-                            move_fila, move_col = move
-                            pixel_x = move_col * 75
-                            pixel_y = (7 - move_fila) * 75
+                            mf, mc = move
+                            if soy_blanco:
+                                py = mf * 75
+                                px = mc * 75
+                            else:
+                                py = (7 - mf) * 75
+                                px = (7 - mc) * 75
+                            screen.blit(highlight_block, (px, py))
                             
-                            screen.blit(highlight_block, (pixel_x, pixel_y))
-                            visible_moves = True
                         pygame.display.update()
+                        visible_moves = True
                     else:
                         if visible_moves:
-                            draw_background(board)
+                            draw_background(board, equipo_humano)
                             visible_moves = False
                         possible_piece_moves.clear()
                         pieza_seleccionada = None
         
+        # Turno IA
         if turno_actual != equipo_humano and not game_over and board.es_ia:
             pygame.display.set_caption("IA está pensando...")
-            pygame.time.wait(100) 
+            pygame.display.update()
+            pygame.time.wait(50)
             
             obtener_movimiento_ia(board)
+
+            fila_meta = 0 if turno_actual == 'blanco' else 7
+            for c in range(8):
+                p = board[fila_meta][c]
+                if isinstance(p, Peon) and p.equipo == turno_actual:
+                    board.promocionar_peon(fila_meta, c, 'Reina')
             
-            pygame.display.set_caption("Ajedrez con IA")
-            draw_background(board)
+            pygame.display.set_caption("Ajedrez")
+            draw_background(board, equipo_humano)
             turno_actual = equipo_humano
             
-            if board.es_jaque_mate('negro'):
+            if board.es_jaque_mate('negro') or board.es_jaque_mate('blanco') or board.es_ahogado('blanco') or board.es_ahogado('negro'):
                 game_over = True
-                game_over_txt = '¡GANAN LAS BLANCAS!'
-            elif board.es_jaque_mate('blanco'):
-                game_over = True
-                game_over_txt = '¡GANAN LAS NEGRAS!'
-            elif board.es_ahogado('blanco') or board.es_ahogado('negro'):
-                game_over = True
-                game_over_txt = '¡EMPATE POR AHOGADO!'
 
     return False 
-
-# Main
 
 def main():
     keep_playing = True
     while keep_playing:
         initialize()
-        
+        # CONFIGURACIÓN: modo_juego=0 (Blancas), modo_juego=1 (Negras)
         board = Tablero(modo_juego=0, es_ia=True, profundidad_ia=3) 
         
-        draw_background(board)
+        equipo = board.obtener_equipo_jugador()
+        draw_background(board, equipo)
         
         keep_playing = start_game_loop(board)
         
