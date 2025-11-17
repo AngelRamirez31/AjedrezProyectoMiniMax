@@ -1,4 +1,4 @@
-# Chess AI Agent with Minimax & GUI
+# Chess AI Agent with Minimax 
 
 This project is a complete implementation of a Chess Engine with Artificial Intelligence, capable of playing against a human opponent through a graphical interface.
 
@@ -60,14 +60,14 @@ pip install pygame
 ---
 
 ##  How to run
-*Clone the repository or download the files.
-*Ensure the assets folder is in the same directory as the scripts.
-*Run the main file: `JuegoGrafico.py`
+* Clone the repository or download the files.
+* Ensure the assets folder is in the same directory as the scripts.
+* Run the main file: `JuegoGrafico.py`
 
 ---
 
 ## Credits 
-*Assets: The visual assets (pieces and board sprites) were created by DANI MACCARI.
+* Assets: The visual assets (pieces and board sprites) were created by DANI MACCARI.
 
 
 
