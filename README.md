@@ -56,11 +56,15 @@ You need Python 3 installed and the `pygame` library.
 
 ```bash
 pip install pygame
+```
+---
 
 ##  How to run
 Clone the repository or download the files.
 Ensure the assets folder is in the same directory as the scripts.
 Run the main file: `JuegoGrafico.py`
+
+---
 
 ## Credits and Acknowledgements
 Assets: The visual assets (pieces and board sprites) were created by DANI MACCARI.
