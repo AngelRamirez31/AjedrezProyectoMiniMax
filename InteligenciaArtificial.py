@@ -1,18 +1,25 @@
 import math
+import random
+import pygame  # <--- AÑADIDO 1: Importamos Pygame
+import sys     # <--- AÑADIDO 2: Importamos Sys (para salir)
+from Tablero import Tablero 
+from PiezaAjedrez import PiezaAjedrez
 
 def algoritmo_minimax(tablero, profundidad, alfa, beta, es_turno_max):
-
+    """
+    Esta función no se modifica.
+    """
     if profundidad == 0 or tablero.es_terminal():
         return tablero.evaluar_puntaje()
 
-    # Determina que piezas se deben mover en este nivel del arbol
     piezas_a_mover = tablero.piezas_blancas if es_turno_max else tablero.piezas_negras
 
     if es_turno_max:
         max_puntuacion = -math.inf
-        for pieza in piezas_a_mover:
-            for movimiento in pieza.filtrar_movimientos_legales(
-                pieza.obtener_movimientos(tablero), tablero
+        for pieza in random.sample(piezas_a_mover, len(piezas_a_mover)):
+            for movimiento in random.sample(
+                pieza.filtrar_movimientos_legales(pieza.obtener_movimientos(tablero), tablero),
+                len(pieza.filtrar_movimientos_legales(pieza.obtener_movimientos(tablero), tablero))
             ):
                 tablero.realizar_movimiento(
                     pieza, movimiento[0], movimiento[1], registrar_historial=True
@@ -25,15 +32,16 @@ def algoritmo_minimax(tablero, profundidad, alfa, beta, es_turno_max):
                 max_puntuacion = max(max_puntuacion, puntuacion)
                 alfa = max(alfa, puntuacion)
                 if beta <= alfa:
-                    break  # Poda Alfa
+                    break 
             if beta <= alfa:
                 break
         return max_puntuacion
-    else:  # Turno Minimizador
+    else: # Turno Minimizador
         min_puntuacion = math.inf
-        for pieza in piezas_a_mover:
-            for movimiento in pieza.filtrar_movimientos_legales(
-                pieza.obtener_movimientos(tablero), tablero
+        for pieza in random.sample(piezas_a_mover, len(piezas_a_mover)):
+            for movimiento in random.sample(
+                pieza.filtrar_movimientos_legales(pieza.obtener_movimientos(tablero), tablero),
+                len(pieza.filtrar_movimientos_legales(pieza.obtener_movimientos(tablero), tablero))
             ):
                 tablero.realizar_movimiento(
                     pieza, movimiento[0], movimiento[1], registrar_historial=True
@@ -46,7 +54,7 @@ def algoritmo_minimax(tablero, profundidad, alfa, beta, es_turno_max):
                 min_puntuacion = min(min_puntuacion, puntuacion)
                 beta = min(beta, puntuacion)
                 if beta <= alfa:
-                    break  # Poda Beta
+                    break 
             if beta <= alfa:
                 break
         return min_puntuacion
@@ -54,11 +62,8 @@ def algoritmo_minimax(tablero, profundidad, alfa, beta, es_turno_max):
 
 def obtener_movimiento_ia(tablero):
     mejor_movimiento = None
-
-    # Determina el rol de la IA
     equipo_humano = tablero.obtener_equipo_jugador()
     equipo_ia = "negro" if equipo_humano == "blanco" else "blanco"
-
     es_turno_max_ia = equipo_ia == "blanco"
 
     if es_turno_max_ia:
@@ -68,37 +73,49 @@ def obtener_movimiento_ia(tablero):
         mejor_puntuacion = math.inf
         piezas_ia = tablero.piezas_negras
 
-    # Itera sobre todos los movimientos posibles para la IA
+    movimientos_posibles = []
     for pieza in piezas_ia:
         for movimiento in pieza.filtrar_movimientos_legales(
             pieza.obtener_movimientos(tablero), tablero
         ):
-            # Simula el movimiento
-            tablero.realizar_movimiento(
-                pieza, movimiento[0], movimiento[1], registrar_historial=True
-            )
-            # Evalua la posicion resultante con Minimax
-            puntuacion = algoritmo_minimax(
-                tablero,
-                tablero.profundidad - 1,
-                -math.inf,
-                math.inf,
-                not es_turno_max_ia,
-            )
-            # Deshace el movimiento para probar el siguiente
-            tablero.deshacer_movimiento(pieza)
+            movimientos_posibles.append((pieza, movimiento))
+    
+    random.shuffle(movimientos_posibles) 
 
-            # Actualiza el mejor movimiento encontrado hasta ahora
-            if es_turno_max_ia:  # La IA es blanca y busca maximizar
-                if puntuacion > mejor_puntuacion:
-                    mejor_puntuacion = puntuacion
-                    mejor_movimiento = (pieza, movimiento)
-            else:  # La IA es negra y busca minimizar
-                if puntuacion < mejor_puntuacion:
-                    mejor_puntuacion = puntuacion
-                    mejor_movimiento = (pieza, movimiento)
+    # --- BUCLE DE PENSAMIENTO DE LA IA ---
+    for pieza, movimiento in movimientos_posibles:
+        
+        # --- ¡CORRECCIÓN DE "NO RESPONDE"! ---
+        # AÑADIDO 3: Le damos un "respiro" a Pygame en cada iteración
+        # para que procese eventos y la ventana no se congele.
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                print("Juego cerrado durante el pensamiento de la IA.")
+                pygame.quit()
+                sys.exit()
+        # --- FIN DE LA CORRECCIÓN ---
 
-    # Realiza el mejor movimiento en el tablero real
+        tablero.realizar_movimiento(
+            pieza, movimiento[0], movimiento[1], registrar_historial=True
+        )
+        puntuacion = algoritmo_minimax(
+            tablero,
+            tablero.profundidad - 1,
+            -math.inf,
+            math.inf,
+            not es_turno_max_ia,
+        )
+        tablero.deshacer_movimiento(pieza)
+
+        if es_turno_max_ia: 
+            if puntuacion > mejor_puntuacion:
+                mejor_puntuacion = puntuacion
+                mejor_movimiento = (pieza, movimiento)
+        else: 
+            if puntuacion < mejor_puntuacion:
+                mejor_puntuacion = puntuacion
+                mejor_movimiento = (pieza, movimiento)
+
     if mejor_movimiento:
         pieza_a_mover, mov_a_realizar = mejor_movimiento
         print(
