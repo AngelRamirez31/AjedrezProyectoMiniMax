@@ -1,4 +1,3 @@
-# PiezaAjedrez.py
 import operator
 from itertools import product
 

@@ -4,6 +4,28 @@ from PiezaAjedrez import *
 from InteligenciaArtificial import obtener_movimiento_ia
 from Tablero import Tablero
 
+def cargar_imagen_escalada_y_centrada(ruta, tamano_casilla=75):
+
+    try:
+        img = pygame.image.load(ruta)
+        rect = img.get_rect()
+        target_height = tamano_casilla
+        ratio = target_height / rect.height
+        new_width = int(rect.width * ratio)
+        new_height = int(rect.height * ratio) 
+        img_scaled = pygame.transform.smoothscale(img, (new_width, new_height))
+        final_surface = pygame.Surface((tamano_casilla, tamano_casilla), pygame.SRCALPHA)
+        center_x = (tamano_casilla - new_width) // 2
+        center_y = 0 
+
+        final_surface.blit(img_scaled, (center_x, center_y))
+        
+        return final_surface
+        
+    except pygame.error as e:
+        print(f"Error cargando imagen {ruta}: {e}")
+        sys.exit()
+
 # Assets
 try:
     dark_block = pygame.image.load('assets/black square.png')
@@ -11,32 +33,22 @@ try:
     dark_block = pygame.transform.scale(dark_block, (75, 75))
     light_block = pygame.transform.scale(light_block, (75, 75))
 
-    whitePawn = pygame.image.load('assets/W_Pawn.png')
-    whitePawn = pygame.transform.scale(whitePawn, (75, 75))
-    whiteRook = pygame.image.load('assets/W_Rook.png')
-    whiteRook = pygame.transform.scale(whiteRook, (75, 75))
-    whiteBishop = pygame.image.load('assets/W_Bishop.png')
-    whiteBishop = pygame.transform.scale(whiteBishop, (75, 75))
-    whiteKnight = pygame.image.load('assets/W_Knight.png')
-    whiteKnight = pygame.transform.scale(whiteKnight, (75, 75))
-    whiteKing = pygame.image.load('assets/W_King.png')
-    whiteKing = pygame.transform.scale(whiteKing, (75, 75))
-    whiteQueen = pygame.image.load('assets/W_Queen.png')
-    whiteQueen = pygame.transform.scale(whiteQueen, (75, 75))
+    # Las piezas usan la función ajustada para priorizar el alto
+    whitePawn = cargar_imagen_escalada_y_centrada('assets/W_Pawn.png')
+    whiteRook = cargar_imagen_escalada_y_centrada('assets/W_Rook.png')
+    whiteBishop = cargar_imagen_escalada_y_centrada('assets/W_Bishop.png')
+    whiteKnight = cargar_imagen_escalada_y_centrada('assets/W_Knight.png')
+    whiteKing = cargar_imagen_escalada_y_centrada('assets/W_King.png')
+    whiteQueen = cargar_imagen_escalada_y_centrada('assets/W_Queen.png')
 
-    blackPawn = pygame.image.load('assets/B_Pawn.png')
-    blackPawn = pygame.transform.scale(blackPawn, (75, 75))
-    blackRook = pygame.image.load('assets/B_Rook.png')
-    blackRook = pygame.transform.scale(blackRook, (75, 75))
-    blackBishop = pygame.image.load('assets/B_Bishop.png')
-    blackBishop = pygame.transform.scale(blackBishop, (75, 75))
-    blackKnight = pygame.image.load('assets/B_Knight.png')
-    blackKnight = pygame.transform.scale(blackKnight, (75, 75))
-    blackKing = pygame.image.load('assets/B_King.png')
-    blackKing = pygame.transform.scale(blackKing, (75, 75))
-    blackQueen = pygame.image.load('assets/B_Queen.png')
-    blackQueen = pygame.transform.scale(blackQueen, (75, 75))
+    blackPawn = cargar_imagen_escalada_y_centrada('assets/B_Pawn.png')
+    blackRook = cargar_imagen_escalada_y_centrada('assets/B_Rook.png')
+    blackBishop = cargar_imagen_escalada_y_centrada('assets/B_Bishop.png')
+    blackKnight = cargar_imagen_escalada_y_centrada('assets/B_Knight.png')
+    blackKing = cargar_imagen_escalada_y_centrada('assets/B_King.png')
+    blackQueen = cargar_imagen_escalada_y_centrada('assets/B_Queen.png')
 
+    # El highlight también debe llenar la casilla
     highlight_block = pygame.image.load('assets/highlight.png')
     highlight_block = pygame.transform.scale(highlight_block, (75, 75))
     
@@ -67,7 +79,6 @@ def initialize():
     screen.fill((0, 0, 0))
 
 def draw_background(board, equipo_jugador):
-
     block_x = 0
     for i in range(4):
         block_y = 0
@@ -88,11 +99,9 @@ def draw_background(board, equipo_jugador):
                 obj = MAPEO_PIEZAS[pieza.equipo][pieza.tipo]
 
                 if soy_blanco:
-
                     screen_y = i * 75
                     screen_x = j * 75
                 else:
-
                     screen_y = (7 - i) * 75
                     screen_x = (7 - j) * 75
                 
@@ -123,6 +132,7 @@ def seleccionar_promocion(equipo):
     screen.blit(texto, (200, 210))
     
     for idx, img in enumerate(imagenes):
+        # Ajustamos la posición para que se vean centradas en el menu
         screen.blit(img, (base_x + idx * 85, base_y))
     
     pygame.display.update()
@@ -171,7 +181,6 @@ def start_game_loop(board):
             if event.type == pygame.MOUSEBUTTONDOWN and not game_over and turno_actual == equipo_humano:
                 pos_x_pixel, pos_y_pixel = pygame.mouse.get_pos()
                 
-                
                 col_click = pos_x_pixel // 75
                 fila_click = pos_y_pixel // 75
                 
@@ -186,12 +195,10 @@ def start_game_loop(board):
                     continue
 
                 if (fila_logica, col_logica) in possible_piece_moves:
-
                     board.realizar_movimiento(pieza_seleccionada, fila_logica, col_logica)
 
                     pieza_movida = board[fila_logica][col_logica]
                     if isinstance(pieza_movida, Peon):
-
                         if pieza_movida.equipo == 'blanco' and fila_logica == 0:
                             eleccion = seleccionar_promocion('blanco')
                             board.promocionar_peon(fila_logica, col_logica, eleccion)
@@ -204,12 +211,10 @@ def start_game_loop(board):
                     draw_background(board, equipo_humano)
                     turno_actual = 'negro' if equipo_humano == 'blanco' else 'blanco'
                     
-                    # Checa estado
                     if board.es_jaque_mate('negro') or board.es_jaque_mate('blanco') or board.es_ahogado('blanco') or board.es_ahogado('negro'):
                         game_over = True
                 
                 else:
-                    # SELECCIONA PIEZA 
                     pieza = board[fila_logica][col_logica]
                     if isinstance(pieza, PiezaAjedrez) and (equipo_humano == pieza.equipo):
                         pieza_seleccionada = pieza

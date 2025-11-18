@@ -228,7 +228,7 @@ class Tablero:
                 if fila == fila_ataque and abs(oponente.columna - col) == 1:
                     return True
             elif isinstance(oponente, Rey):
-                # Usamos movimientos basicos para evitar recursión infinita
+                # Usamos movimientos basicos para evitar recursión infinita.
                 if hasattr(oponente, 'obtener_movimientos_basicos'):
                     if (fila, col) in oponente.obtener_movimientos_basicos(self):
                         return True

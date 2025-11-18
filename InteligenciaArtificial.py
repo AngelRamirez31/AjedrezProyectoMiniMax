@@ -6,9 +6,6 @@ from Tablero import Tablero
 from PiezaAjedrez import PiezaAjedrez
 
 def algoritmo_minimax(tablero, profundidad, alfa, beta, es_turno_max):
-    """
-    Esta función no se modifica.
-    """
     if profundidad == 0 or tablero.es_terminal():
         return tablero.evaluar_puntaje()
 
