@@ -12,28 +12,24 @@ def cargar_imagen_escalada_y_centrada(ruta, tamano_casilla=75):
         target_height = tamano_casilla
         ratio = target_height / rect.height
         new_width = int(rect.width * ratio)
-        new_height = int(rect.height * ratio) 
+        new_height = int(rect.height * ratio)
         img_scaled = pygame.transform.smoothscale(img, (new_width, new_height))
         final_surface = pygame.Surface((tamano_casilla, tamano_casilla), pygame.SRCALPHA)
         center_x = (tamano_casilla - new_width) // 2
         center_y = 0 
-
         final_surface.blit(img_scaled, (center_x, center_y))
-        
         return final_surface
-        
     except pygame.error as e:
         print(f"Error cargando imagen {ruta}: {e}")
         sys.exit()
 
-# Assets
+# Carga de Assets 
 try:
     dark_block = pygame.image.load('assets/black square.png')
     light_block = pygame.image.load('assets/white square.png')
     dark_block = pygame.transform.scale(dark_block, (75, 75))
     light_block = pygame.transform.scale(light_block, (75, 75))
 
-    # Las piezas usan la función ajustada para priorizar el alto
     whitePawn = cargar_imagen_escalada_y_centrada('assets/W_Pawn.png')
     whiteRook = cargar_imagen_escalada_y_centrada('assets/W_Rook.png')
     whiteBishop = cargar_imagen_escalada_y_centrada('assets/W_Bishop.png')
@@ -48,7 +44,6 @@ try:
     blackKing = cargar_imagen_escalada_y_centrada('assets/B_King.png')
     blackQueen = cargar_imagen_escalada_y_centrada('assets/B_Queen.png')
 
-    # El highlight también debe llenar la casilla
     highlight_block = pygame.image.load('assets/highlight.png')
     highlight_block = pygame.transform.scale(highlight_block, (75, 75))
     
@@ -64,7 +59,8 @@ except pygame.error as e:
 
 screen = None
 pygame.font.init()
-font = pygame.font.SysFont('Comic Sans MS', 24)
+font_grande = pygame.font.SysFont('Arial', 40, bold=True)
+font_peque = pygame.font.SysFont('Arial', 20)
 
 MAPEO_PIEZAS = {
     'blanco': {'Peon': whitePawn, 'Torre': whiteRook, 'Caballo': whiteKnight, 'Alfil': whiteBishop, 'Reina': whiteQueen, 'Rey': whiteKing},
@@ -97,15 +93,36 @@ def draw_background(board, equipo_jugador):
             pieza = board[i][j]
             if isinstance(pieza, PiezaAjedrez):
                 obj = MAPEO_PIEZAS[pieza.equipo][pieza.tipo]
-
                 if soy_blanco:
                     screen_y = i * 75
                     screen_x = j * 75
                 else:
                     screen_y = (7 - i) * 75
                     screen_x = (7 - j) * 75
-                
                 screen.blit(obj, (screen_x, screen_y))
+    pygame.display.update()
+
+def mostrar_fin_de_juego(texto_resultado):
+    # Crea superficie  para oscurecer el tablero
+    overlay = pygame.Surface((600, 600))
+    overlay.set_alpha(150)
+    overlay.fill((0, 0, 0))
+    screen.blit(overlay, (0, 0))
+
+    # Fondo del cuadro
+    ancho_caja, alto_caja = 400, 150
+    x_caja = (600 - ancho_caja) // 2
+    y_caja = (600 - alto_caja) // 2
+    pygame.draw.rect(screen, (50, 50, 50), (x_caja, y_caja, ancho_caja, alto_caja), border_radius=10)
+    pygame.draw.rect(screen, (255, 255, 255), (x_caja, y_caja, ancho_caja, alto_caja), 3, border_radius=10)
+
+    texto_titulo = font_grande.render(texto_resultado, True, (255, 215, 0)) # Color dorado
+    texto_sub = font_peque.render("Presiona ESPACIO para reiniciar", True, (255, 255, 255))
+    rect_titulo = texto_titulo.get_rect(center=(300, y_caja + 50))
+    rect_sub = texto_sub.get_rect(center=(300, y_caja + 100))
+
+    screen.blit(texto_titulo, rect_titulo)
+    screen.blit(texto_sub, rect_sub)
     pygame.display.update()
 
 def seleccionar_promocion(equipo):
@@ -128,11 +145,10 @@ def seleccionar_promocion(equipo):
 
     pygame.draw.rect(screen, (220, 220, 220), (120, 200, 360, 150))
     
-    texto = font.render("Selecciona Pieza:", True, (0, 0, 0))
+    texto = pygame.font.SysFont('Arial', 24).render("Selecciona Pieza:", True, (0, 0, 0))
     screen.blit(texto, (200, 210))
     
     for idx, img in enumerate(imagenes):
-        # Ajustamos la posición para que se vean centradas en el menu
         screen.blit(img, (base_x + idx * 85, base_y))
     
     pygame.display.update()
@@ -156,6 +172,7 @@ def start_game_loop(board):
     visible_moves = False
     game_over = False
     pieza_seleccionada = None
+    mensaje_final = "" # Variable para guardar quién ganó
     
     equipo_humano = board.obtener_equipo_jugador()
     soy_blanco = (equipo_humano == 'blanco')
@@ -169,6 +186,10 @@ def start_game_loop(board):
         turno_actual = 'negro' 
 
     while running:
+        # Si el juego terminó, mostramos el mensaje
+        if game_over:
+            mostrar_fin_de_juego(mensaje_final)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -211,10 +232,19 @@ def start_game_loop(board):
                     draw_background(board, equipo_humano)
                     turno_actual = 'negro' if equipo_humano == 'blanco' else 'blanco'
                     
-                    if board.es_jaque_mate('negro') or board.es_jaque_mate('blanco') or board.es_ahogado('blanco') or board.es_ahogado('negro'):
+                    # VERIFICA FIN DE JUEGO TRAS JUGADA HUMANA
+                    if board.es_jaque_mate('negro'):
                         game_over = True
+                        mensaje_final = "¡GANAN LAS BLANCAS!"
+                    elif board.es_jaque_mate('blanco'):
+                        game_over = True
+                        mensaje_final = "¡GANAN LAS NEGRAS!"
+                    elif board.es_ahogado('blanco') or board.es_ahogado('negro'):
+                        game_over = True
+                        mensaje_final = "¡TABLAS (AHOGADO)!"
                 
                 else:
+                    # SELECCIONA PIEZA 
                     pieza = board[fila_logica][col_logica]
                     if isinstance(pieza, PiezaAjedrez) and (equipo_humano == pieza.equipo):
                         pieza_seleccionada = pieza
@@ -263,8 +293,16 @@ def start_game_loop(board):
             draw_background(board, equipo_humano)
             turno_actual = equipo_humano
             
-            if board.es_jaque_mate('negro') or board.es_jaque_mate('blanco') or board.es_ahogado('blanco') or board.es_ahogado('negro'):
+            # VERIFICAR FIN DE JUEGO TRAS JUGADA IA
+            if board.es_jaque_mate('negro'):
                 game_over = True
+                mensaje_final = "¡GANAN LAS BLANCAS!"
+            elif board.es_jaque_mate('blanco'):
+                game_over = True
+                mensaje_final = "¡GANAN LAS NEGRAS!"
+            elif board.es_ahogado('blanco') or board.es_ahogado('negro'):
+                game_over = True
+                mensaje_final = "¡TABLAS (AHOGADO)!"
 
     return False 
 
