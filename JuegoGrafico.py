@@ -311,7 +311,7 @@ def main():
     while keep_playing:
         initialize()
         # CONFIGURACIÓN: modo_juego=0 (Blancas), modo_juego=1 (Negras)
-        board = Tablero(modo_juego=0, es_ia=True, profundidad_ia=3) 
+        board = Tablero(modo_juego= 0, es_ia=True, profundidad_ia=2) 
         
         equipo = board.obtener_equipo_jugador()
         draw_background(board, equipo)
