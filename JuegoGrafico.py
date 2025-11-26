@@ -5,7 +5,7 @@ from PiezaAjedrez import *
 from InteligenciaArtificial import obtener_movimiento_ia
 from Tablero import Tablero
 
-def cargar_imagen_escalada_y_centrada(ruta, tamano_casilla=75):
+def cargar_assets_(ruta, tamano_casilla=75):
     try:
         img = pygame.image.load(ruta)
         rect = img.get_rect()
@@ -29,19 +29,19 @@ try:
     dark_block = pygame.transform.scale(dark_block, (75, 75))
     light_block = pygame.transform.scale(light_block, (75, 75))
 
-    whitePawn = cargar_imagen_escalada_y_centrada('assets/W_Pawn.png')
-    whiteRook = cargar_imagen_escalada_y_centrada('assets/W_Rook.png')
-    whiteBishop = cargar_imagen_escalada_y_centrada('assets/W_Bishop.png')
-    whiteKnight = cargar_imagen_escalada_y_centrada('assets/W_Knight.png')
-    whiteKing = cargar_imagen_escalada_y_centrada('assets/W_King.png')
-    whiteQueen = cargar_imagen_escalada_y_centrada('assets/W_Queen.png')
+    whitePawn = cargar_assets_('assets/W_Pawn.png')
+    whiteRook = cargar_assets_('assets/W_Rook.png')
+    whiteBishop = cargar_assets_('assets/W_Bishop.png')
+    whiteKnight = cargar_assets_('assets/W_Knight.png')
+    whiteKing = cargar_assets_('assets/W_King.png')
+    whiteQueen = cargar_assets_('assets/W_Queen.png')
 
-    blackPawn = cargar_imagen_escalada_y_centrada('assets/B_Pawn.png')
-    blackRook = cargar_imagen_escalada_y_centrada('assets/B_Rook.png')
-    blackBishop = cargar_imagen_escalada_y_centrada('assets/B_Bishop.png')
-    blackKnight = cargar_imagen_escalada_y_centrada('assets/B_Knight.png')
-    blackKing = cargar_imagen_escalada_y_centrada('assets/B_King.png')
-    blackQueen = cargar_imagen_escalada_y_centrada('assets/B_Queen.png')
+    blackPawn = cargar_assets_('assets/B_Pawn.png')
+    blackRook = cargar_assets_('assets/B_Rook.png')
+    blackBishop = cargar_assets_('assets/B_Bishop.png')
+    blackKnight = cargar_assets_('assets/B_Knight.png')
+    blackKing = cargar_assets_('assets/B_King.png')
+    blackQueen = cargar_assets_('assets/B_Queen.png')
 
     highlight_block = pygame.image.load('assets/highlight.png')
     highlight_block = pygame.transform.scale(highlight_block, (75, 75))
@@ -74,7 +74,6 @@ def initialize():
     screen = pygame.display.set_mode((600, 600))
     screen.fill((0, 0, 0))
 
-# MODIFICADO: Ahora acepta un parámetro opcional 'actualizar_pantalla'
 def draw_background(board, equipo_jugador, actualizar_pantalla=True):
     block_x = 0
     for i in range(4):
