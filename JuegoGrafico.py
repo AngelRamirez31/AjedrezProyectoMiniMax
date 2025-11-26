@@ -1,11 +1,11 @@
 import pygame
 import sys
+import math
 from PiezaAjedrez import *
 from InteligenciaArtificial import obtener_movimiento_ia
 from Tablero import Tablero
 
 def cargar_imagen_escalada_y_centrada(ruta, tamano_casilla=75):
-
     try:
         img = pygame.image.load(ruta)
         rect = img.get_rect()
@@ -23,7 +23,6 @@ def cargar_imagen_escalada_y_centrada(ruta, tamano_casilla=75):
         print(f"Error cargando imagen {ruta}: {e}")
         sys.exit()
 
-# Carga de Assets 
 try:
     dark_block = pygame.image.load('assets/black square.png')
     light_block = pygame.image.load('assets/white square.png')
@@ -60,6 +59,7 @@ except pygame.error as e:
 screen = None
 pygame.font.init()
 font_grande = pygame.font.SysFont('Arial', 40, bold=True)
+font_mediana = pygame.font.SysFont('Arial', 30, bold=True)
 font_peque = pygame.font.SysFont('Arial', 20)
 
 MAPEO_PIEZAS = {
@@ -74,7 +74,8 @@ def initialize():
     screen = pygame.display.set_mode((600, 600))
     screen.fill((0, 0, 0))
 
-def draw_background(board, equipo_jugador):
+# MODIFICADO: Ahora acepta un parámetro opcional 'actualizar_pantalla'
+def draw_background(board, equipo_jugador, actualizar_pantalla=True):
     block_x = 0
     for i in range(4):
         block_y = 0
@@ -100,29 +101,82 @@ def draw_background(board, equipo_jugador):
                     screen_y = (7 - i) * 75
                     screen_x = (7 - j) * 75
                 screen.blit(obj, (screen_x, screen_y))
-    pygame.display.update()
 
-def mostrar_fin_de_juego(texto_resultado):
-    # Crea superficie  para oscurecer el tablero
+    if actualizar_pantalla:
+        pygame.display.update()
+
+def main_menu():
+    menu_running = True
+    clock = pygame.time.Clock() # Agregamos reloj para estabilidad
+    
+    while menu_running:
+        clock.tick(60) # Limitamos a 60 FPS
+        screen.fill((40, 40, 40))
+
+        texto_titulo = font_grande.render("Ajedrez Minimax", True, (255, 255, 255))
+        rect_titulo = texto_titulo.get_rect(center=(300, 100))
+        screen.blit(texto_titulo, rect_titulo)
+        
+        texto_subtitulo = font_peque.render("Selecciona Color:", True, (200, 200, 200))
+        rect_sub = texto_subtitulo.get_rect(center=(300, 150))
+        screen.blit(texto_subtitulo, rect_sub)
+
+        boton_blanco = pygame.Rect(150, 250, 300, 80)
+        pygame.draw.rect(screen, (240, 240, 240), boton_blanco, border_radius=10)
+        texto_blanco = font_mediana.render("Jugar con Blancas", True, (0, 0, 0))
+        rect_txt_blanco = texto_blanco.get_rect(center=boton_blanco.center)
+        screen.blit(texto_blanco, rect_txt_blanco)
+
+        boton_negro = pygame.Rect(150, 350, 300, 80)
+        pygame.draw.rect(screen, (20, 20, 20), boton_negro, border_radius=10)
+        pygame.draw.rect(screen, (100, 100, 100), boton_negro, 2, border_radius=10)
+        texto_negro = font_mediana.render("Jugar con Negras", True, (255, 255, 255))
+        rect_txt_negro = texto_negro.get_rect(center=boton_negro.center)
+        screen.blit(texto_negro, rect_txt_negro)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mx, my = pygame.mouse.get_pos()
+                if boton_blanco.collidepoint((mx, my)):
+                    return 0
+                if boton_negro.collidepoint((mx, my)):
+                    return 1
+
+        pygame.display.update()
+
+def mostrar_fin_de_juego(texto_resultado, board, equipo_jugador):
+    # DIBUJAMOS EL FONDO SIN ACTUALIZAR PANTALLA (False)
+    draw_background(board, equipo_jugador, actualizar_pantalla=False)
+
     overlay = pygame.Surface((600, 600))
-    overlay.set_alpha(150)
+    overlay.set_alpha(100) 
     overlay.fill((0, 0, 0))
     screen.blit(overlay, (0, 0))
 
-    # Fondo del cuadro
     ancho_caja, alto_caja = 400, 150
     x_caja = (600 - ancho_caja) // 2
     y_caja = (600 - alto_caja) // 2
-    pygame.draw.rect(screen, (50, 50, 50), (x_caja, y_caja, ancho_caja, alto_caja), border_radius=10)
-    pygame.draw.rect(screen, (255, 255, 255), (x_caja, y_caja, ancho_caja, alto_caja), 3, border_radius=10)
+    
+    s_caja = pygame.Surface((ancho_caja, alto_caja))
+    s_caja.set_alpha(200)
+    s_caja.fill((50, 50, 50))
+    screen.blit(s_caja, (x_caja, y_caja))
+    
+    pygame.draw.rect(screen, (255, 255, 255), (x_caja, y_caja, ancho_caja, alto_caja), 3)
 
-    texto_titulo = font_grande.render(texto_resultado, True, (255, 215, 0)) # Color dorado
-    texto_sub = font_peque.render("Presiona ESPACIO para reiniciar", True, (255, 255, 255))
+    texto_titulo = font_grande.render(texto_resultado, True, (255, 215, 0))
+    texto_sub = font_peque.render("Presiona ESPACIO para Menú", True, (255, 255, 255))
     rect_titulo = texto_titulo.get_rect(center=(300, y_caja + 50))
     rect_sub = texto_sub.get_rect(center=(300, y_caja + 100))
 
     screen.blit(texto_titulo, rect_titulo)
     screen.blit(texto_sub, rect_sub)
+    
+    # ACTUALIZAMOS TODO JUNTO AL FINAL
     pygame.display.update()
 
 def seleccionar_promocion(equipo):
@@ -136,7 +190,7 @@ def seleccionar_promocion(equipo):
     ]
 
     s = pygame.Surface((600, 600))
-    s.set_alpha(150)
+    s.set_alpha(100)
     s.fill((0,0,0))
     screen.blit(s, (0,0))
     
@@ -155,6 +209,8 @@ def seleccionar_promocion(equipo):
     
     while seleccionando:
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos_x, pos_y = pygame.mouse.get_pos()
                 if 250 <= pos_y <= 325:
@@ -164,7 +220,6 @@ def seleccionar_promocion(equipo):
                             return opciones[idx]
     return 'Reina'
 
-
 def start_game_loop(board):
     global screen
     possible_piece_moves = []
@@ -172,8 +227,11 @@ def start_game_loop(board):
     visible_moves = False
     game_over = False
     pieza_seleccionada = None
-    mensaje_final = "" # Variable para guardar quién ganó
+    mensaje_final = "" 
     
+    # Reloj para controlar los FPS y evitar uso excesivo de CPU
+    clock = pygame.time.Clock()
+
     equipo_humano = board.obtener_equipo_jugador()
     soy_blanco = (equipo_humano == 'blanco')
     turno_actual = 'blanco'
@@ -186,18 +244,19 @@ def start_game_loop(board):
         turno_actual = 'negro' 
 
     while running:
-        # Si el juego terminó, mostramos el mensaje
+        clock.tick(60) # Limitamos el juego a 60 cuadros por segundo
+
         if game_over:
-            mostrar_fin_de_juego(mensaje_final)
+            mostrar_fin_de_juego(mensaje_final, board, equipo_humano)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-                return False 
+                return False
             
             if game_over and event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    return True 
+                    return True
 
             if event.type == pygame.MOUSEBUTTONDOWN and not game_over and turno_actual == equipo_humano:
                 pos_x_pixel, pos_y_pixel = pygame.mouse.get_pos()
@@ -232,7 +291,6 @@ def start_game_loop(board):
                     draw_background(board, equipo_humano)
                     turno_actual = 'negro' if equipo_humano == 'blanco' else 'blanco'
                     
-                    # VERIFICA FIN DE JUEGO TRAS JUGADA HUMANA
                     if board.es_jaque_mate('negro'):
                         game_over = True
                         mensaje_final = "¡GANAN LAS BLANCAS!"
@@ -244,7 +302,6 @@ def start_game_loop(board):
                         mensaje_final = "¡TABLAS (AHOGADO)!"
                 
                 else:
-                    # SELECCIONA PIEZA 
                     pieza = board[fila_logica][col_logica]
                     if isinstance(pieza, PiezaAjedrez) and (equipo_humano == pieza.equipo):
                         pieza_seleccionada = pieza
@@ -275,7 +332,6 @@ def start_game_loop(board):
                         possible_piece_moves.clear()
                         pieza_seleccionada = None
         
-        # Turno IA
         if turno_actual != equipo_humano and not game_over and board.es_ia:
             pygame.display.set_caption("IA está pensando...")
             pygame.display.update()
@@ -293,7 +349,6 @@ def start_game_loop(board):
             draw_background(board, equipo_humano)
             turno_actual = equipo_humano
             
-            # VERIFICAR FIN DE JUEGO TRAS JUGADA IA
             if board.es_jaque_mate('negro'):
                 game_over = True
                 mensaje_final = "¡GANAN LAS BLANCAS!"
@@ -308,14 +363,14 @@ def start_game_loop(board):
 
 def main():
     keep_playing = True
+    
+    initialize()
+    
     while keep_playing:
-        initialize()
-        # CONFIGURACIÓN: modo_juego=0 (Blancas), modo_juego=1 (Negras)
-        board = Tablero(modo_juego= 0, es_ia=True, profundidad_ia=2) 
-        
+        modo_elegido = main_menu() 
+        board = Tablero(modo_juego=modo_elegido, es_ia=True, profundidad_ia=2) 
         equipo = board.obtener_equipo_jugador()
         draw_background(board, equipo)
-        
         keep_playing = start_game_loop(board)
         
     pygame.quit()
