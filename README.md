@@ -62,7 +62,7 @@ pip install pygame
 ##  How to run
 * Clone the repository or download the files.
 * Ensure the assets folder is in the same directory as the scripts.
-* Run the main file: `JuegoGrafico.py`
+* Run the main file: `JuegoGrafico.py` or you can run the `AjedrezMinimax.exe` file without open the code.
 
 ---
 
